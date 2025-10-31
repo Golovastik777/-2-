@@ -1,4 +1,3 @@
-// Inject CSS via JavaScript to keep HTML minimal
 (function injectStyles() {
     const style = document.createElement('style');
     style.textContent = `
@@ -114,18 +113,15 @@
 (function main() {
     /** @typedef {{id:string,title:string,dueDate:string,completed:boolean,order:number}} Task */
 
-    // State
     /** @type {Task[]} */
     let tasks = [];
-    let filterStatus = 'all'; // all|active|completed
-    let sortMode = 'manual'; // manual|dateAsc|dateDesc
+    let filterStatus = 'all'; 
+    let sortMode = 'manual'; 
     let searchQuery = '';
 
-    // Storage Keys
     const STORAGE_KEY = 'todo.tasks.v1';
     const STORAGE_VIEW_KEY = 'todo.view.v1';
 
-    // Utils
     const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
     const save = () => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
@@ -147,12 +143,10 @@
         } catch {}
     };
 
-    // Root
     const root = document.createElement('div');
     root.className = 'container';
     document.body.appendChild(root);
 
-    // Header
     const header = document.createElement('header');
     const title = document.createElement('h1');
     title.textContent = 'ToDo-лист';
@@ -170,7 +164,6 @@
     header.append(title, toolbar);
     root.appendChild(header);
 
-    // Controls: Add form
     const controls = document.createElement('section');
     controls.className = 'controls';
 
@@ -223,11 +216,9 @@
 
     addRow.append(fieldTitle, fieldDate, addBtn);
 
-    // Filter/Sort/Search row
     const fssRow = document.createElement('div');
     fssRow.className = 'row wrap';
 
-    // Status filter
     const fieldFilter = document.createElement('div');
     fieldFilter.className = 'field';
     const labelFilter = document.createElement('label');
@@ -248,7 +239,6 @@
     });
     fieldFilter.append(labelFilter, selectFilter);
 
-    // Sort mode
     const fieldSort = document.createElement('div');
     fieldSort.className = 'field';
     const labelSort = document.createElement('label');
@@ -295,7 +285,6 @@
     inputSearch.addEventListener('input', handleSearch);
     fieldSearch.append(labelSearch, inputSearch);
 
-    // Bulk actions and import/export
     const bulkRow = document.createElement('div');
     bulkRow.className = 'row wrap';
 
@@ -454,7 +443,6 @@
         el.draggable = sortMode === 'manual';
         el.dataset.id = task.id;
 
-        // Complete checkbox
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = task.completed;
@@ -464,7 +452,6 @@
             render();
         });
 
-        // Content
         const content = document.createElement('div');
         const titleEl = document.createElement('div');
         titleEl.className = 'title' + (task.completed ? ' completed' : '');
@@ -482,7 +469,6 @@
 
         content.append(titleEl, meta);
 
-        // Actions
         const actions = document.createElement('div');
         actions.className = 'actions';
         const editBtn = document.createElement('button');
@@ -510,7 +496,6 @@
         container.draggable = false;
 
         const spacer = document.createElement('div');
-        // keep grid placement
         const left = document.createElement('div');
         left.style.display = 'flex';
 
@@ -552,7 +537,6 @@
         inputT.focus();
     }
 
-    // Drag & Drop for manual sort
     function setupDragAndDrop() {
         if (sortMode !== 'manual') return;
         const items = Array.from(list.querySelectorAll('.item'));
@@ -581,7 +565,6 @@
         });
 
         list.addEventListener('drop', () => {
-            // Update order based on current DOM
             const ids = Array.from(list.querySelectorAll('.item')).map(el => el.dataset.id);
             const idToTask = new Map(tasks.map(t => [t.id, t]));
             ids.forEach((id, idx) => {
@@ -593,7 +576,6 @@
         }, { once: true });
     }
 
-    // Init
     load();
     render();
 })();
