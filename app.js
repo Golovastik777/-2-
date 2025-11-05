@@ -1,3 +1,4 @@
+// Inject CSS via JavaScript to keep HTML minimal
 (function injectStyles() {
     const style = document.createElement('style');
     style.textContent = `
@@ -113,15 +114,18 @@
 (function main() {
     /** @typedef {{id:string,title:string,dueDate:string,completed:boolean,order:number}} Task */
 
+    // State
     /** @type {Task[]} */
     let tasks = [];
-    let filterStatus = 'all'; 
+    let filterStatus = 'all'; // all|active|completed
     let sortMode = 'manual'; 
     let searchQuery = '';
 
+    // Storage Keys
     const STORAGE_KEY = 'todo.tasks.v1';
     const STORAGE_VIEW_KEY = 'todo.view.v1';
 
+    // Utils
     const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
     const save = () => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
@@ -226,11 +230,17 @@
     labelFilter.setAttribute('for', 'filter');
     const selectFilter = document.createElement('select');
     selectFilter.id = 'filter';
-    selectFilter.innerHTML = `
-        <option value="all">Все</option>
-        <option value="active">Невыполнено</option>
-        <option value="completed">Выполнено</option>
-    `;
+    // Build filter options without innerHTML
+    const optAll = document.createElement('option');
+    optAll.value = 'all';
+    optAll.textContent = 'Все';
+    const optActive = document.createElement('option');
+    optActive.value = 'active';
+    optActive.textContent = 'Невыполнено';
+    const optCompleted = document.createElement('option');
+    optCompleted.value = 'completed';
+    optCompleted.textContent = 'Выполнено';
+    selectFilter.append(optAll, optActive, optCompleted);
     selectFilter.value = filterStatus;
     selectFilter.addEventListener('change', () => {
         filterStatus = selectFilter.value;
@@ -246,11 +256,16 @@
     labelSort.setAttribute('for', 'sort');
     const selectSort = document.createElement('select');
     selectSort.id = 'sort';
-    selectSort.innerHTML = `
-        <option value="manual">Ручной порядок</option>
-        <option value="dateAsc">Дата: по возрастанию</option>
-        <option value="dateDesc">Дата: по убыванию</option>
-    `;
+    const optManual = document.createElement('option');
+    optManual.value = 'manual';
+    optManual.textContent = 'Ручной порядок';
+    const optAsc = document.createElement('option');
+    optAsc.value = 'dateAsc';
+    optAsc.textContent = 'Дата: по возрастанию';
+    const optDesc = document.createElement('option');
+    optDesc.value = 'dateDesc';
+    optDesc.textContent = 'Дата: по убыванию';
+    selectSort.append(optManual, optAsc, optDesc);
     selectSort.value = sortMode;
     selectSort.addEventListener('change', () => {
         sortMode = selectSort.value;
@@ -259,7 +274,6 @@
     });
     fieldSort.append(labelSort, selectSort);
 
-    // Search
     const fieldSearch = document.createElement('div');
     fieldSearch.className = 'field';
     const labelSearch = document.createElement('label');
@@ -296,7 +310,7 @@
         if (count === 0) return;
         if (!confirm(`Удалить ${count} выполненных задач?`)) return;
         tasks = tasks.filter(t => !t.completed);
-        // reindex order to keep it tidy
+
         tasks.sort((a,b) => (a.order||0)-(b.order||0)).forEach((t,i)=> t.order = i+1);
         save();
         render();
@@ -379,12 +393,10 @@
     controls.append(addRow, fssRow, bulkRow);
     root.appendChild(controls);
 
-    // List container
     const list = document.createElement('section');
     list.className = 'list';
     root.appendChild(list);
 
-    // Render helpers
     function sortTasks(view) {
         if (sortMode === 'dateAsc') {
             return [...view].sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || ''));
@@ -407,7 +419,7 @@
     }
 
     function render() {
-        list.innerHTML = '';
+        while (list.firstChild) list.removeChild(list.firstChild);
         const view = filteredTasks();
         updateStats();
 
@@ -492,7 +504,7 @@
     }
 
     function startEdit(container, task) {
-        container.innerHTML = '';
+        while (container.firstChild) container.removeChild(container.firstChild);
         container.draggable = false;
 
         const spacer = document.createElement('div');
