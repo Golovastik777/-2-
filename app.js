@@ -230,7 +230,7 @@
     labelFilter.setAttribute('for', 'filter');
     const selectFilter = document.createElement('select');
     selectFilter.id = 'filter';
-    // Build filter options without innerHTML
+
     const optAll = document.createElement('option');
     optAll.value = 'all';
     optAll.textContent = 'Все';
